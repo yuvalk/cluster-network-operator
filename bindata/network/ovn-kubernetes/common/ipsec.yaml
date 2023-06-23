@@ -35,6 +35,8 @@ spec:
               - key: network.operator.openshift.io/dpu-host
                 operator: DoesNotExist
       serviceAccountName: ovn-kubernetes-node
+      hostIPC: true
+      hostPID: true
       hostNetwork: true
       dnsPolicy: Default
       priorityClassName: "system-node-critical"
@@ -142,6 +144,8 @@ spec:
           name: signer-ca
         - mountPath: /etc/openvswitch
           name: etc-openvswitch
+        - mountPath: /etc/ipsec.conf
+          name: host-etc-ipsec
         resources:
           requests:
             cpu: 10m
@@ -157,21 +161,6 @@ spec:
         - |
           #!/bin/bash
           set -exuo pipefail
-
-          function cleanup()
-          {
-            # In order to maintain traffic flows during container restart, we
-            # need to ensure that xfrm state and policies are not flushed.
-
-            # Don't allow ovs monitor to cleanup persistent state
-            kill $(cat /var/run/openvswitch/ovs-monitor-ipsec.pid 2>/dev/null) 2>/dev/null || true
-            # Don't allow pluto to clear xfrm state and policies on exit
-            kill -9 $(cat /var/run/pluto/pluto.pid 2>/devnull) 2>/dev/null || true
-
-            /usr/sbin/ipsec --stopnflog
-            exit 0
-          }
-          trap cleanup SIGTERM
 
           # Don't start IPsec until ovnkube-node has finished setting up the node
           counter=0
@@ -212,6 +201,26 @@ spec:
             --pidfile=/var/run/openvswitch/ovs-monitor-ipsec.pid --ike-daemon=libreswan --no-restart-ike-daemon \
             --ipsec-d /var/lib/ipsec/nss \
             --log-file --monitor unix:/var/run/openvswitch/db.sock
+        lifecycle:
+           preStop:
+             exec:
+               command:
+                 - /bin/bash
+                 - -c
+                 - |
+                   #!/bin/bash
+                   set -exuo pipefail
+                   # In order to maintain traffic flows during container restart, we
+                   # need to ensure that xfrm state and policies are not flushed.
+
+                   # Don't allow ovs monitor to cleanup persistent state
+                   kill $(cat /var/run/openvswitch/ovs-monitor-ipsec.pid 2>/dev/null) 2>/dev/null || true
+                   # Don't allow pluto to clear xfrm state and policies on exit
+                   kill -9 $(cat /var/run/pluto/pluto.pid 2>/devnull) 2>/dev/null || true
+                   rm /var/run/pluto/pluto.pid
+                   rm /var/run/pluto/pluto.ctl
+
+                   /usr/sbin/ipsec --stopnflog
         env:
         - name: K8S_NODE
           valueFrom:
@@ -229,6 +238,14 @@ spec:
           name: host-var-log-ovs
         - mountPath: /etc/openvswitch
           name: etc-openvswitch
+        - mountPath: /var/run/ipsec
+          name: host-run-ipsec
+        - mountPath: /var/lib/ipsec
+          name: host-var-lib-ipsec
+        - mountPath: /var/run/pluto
+          name: host-var-run-pluto
+        - mountPath: /etc/ipsec.conf
+          name: host-etc-openshift-ipsec
         resources:
           requests:
             cpu: 10m
@@ -248,24 +265,50 @@ spec:
         beta.kubernetes.io/os: "linux"
       terminationGracePeriodSeconds: 10
       volumes:
-      - name: host-var-log-ovs
-        hostPath:
+      - hostPath:
           path: /var/log/openvswitch
           type: DirectoryOrCreate
-      - name: host-var-run-ovs
-        hostPath:
+        name: host-var-log-ovs
+      - hostPath:
           path: /var/run/openvswitch
           type: DirectoryOrCreate
-      - name: signer-ca
-        configMap:
+        name: host-var-run-ovs
+      - configMap:
+          defaultMode: 420
           name: signer-ca
-      - name: etc-openvswitch
-        hostPath:
+        name: signer-ca
+      - hostPath:
           path: /var/lib/openvswitch/etc
           type: DirectoryOrCreate
-      - name: host-cni-netd
-        hostPath:
-          path: "{{.CNIConfDir}}"
+        name: etc-openvswitch
+      - hostPath:
+          path: /var/run/multus/cni/net.d
+          type: ""
+        name: host-cni-netd
+      - hostPath:
+          path: /var/run/ipsec
+          type: DirectoryOrCreate
+        name: host-var-run-ipsec
+      - hostPath:
+          path: /var/lib/ipsec
+          type: Directory
+        name: host-var-lib-ipsec
+      - hostPath:
+          path: /var/run/pluto
+          type: DirectoryOrCreate
+        name: host-var-run-pluto
+      - hostPath:
+          path: /var/run/ipsec
+          type: DirectoryOrCreate
+        name: host-run-ipsec
+      - hostPath:
+          path: /etc/ipsec.conf
+          type: File
+        name: host-etc-ipsec
+      - hostPath:
+          path: /etc/ipsec.d/openshift.conf
+          type: FileOrCreate
+        name: host-etc-openshift-ipsec
       tolerations:
       - operator: "Exists"
 {{end}}
