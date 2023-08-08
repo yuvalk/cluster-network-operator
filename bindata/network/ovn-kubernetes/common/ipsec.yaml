@@ -41,6 +41,18 @@ spec:
       dnsPolicy: Default
       priorityClassName: "system-node-critical"
       initContainers:
+      - name: rhcos-libreswan-check
+        image: "{{.OvnImage}}"
+        command:
+        - /bin/bash
+        - -c
+        - |
+          #!/bin/bash
+          set -exuo pipefail
+
+          rpm -qa libreswan
+          # initContainer succeed if rpm EXISTS
+          exit $?
       - name: ovn-keys
         image: "{{.OvnImage}}"
         command:
