@@ -41,18 +41,6 @@ spec:
       dnsPolicy: Default
       priorityClassName: "system-node-critical"
       initContainers:
-      - name: rhcos-libreswan-check
-        image: "{{.OvnImage}}"
-        command:
-        - /bin/bash
-        - -c
-        - |
-          #!/bin/bash
-          set -exuo pipefail
-
-          rpm -qa libreswan
-          # initContainer succeed if rpm EXISTS
-          exit $?
       - name: ovn-keys
         image: "{{.OvnImage}}"
         command:
@@ -174,6 +162,13 @@ spec:
           #!/bin/bash
           set -exuo pipefail
 
+          # check if need to run on host
+          rpm -qa libreswan
+          if [ "$?" -ne 0 ]; then
+            echo "no libreswan on host, ipsec will run in container from the pre414 daemonset"
+            exit 0
+          fi
+
           # Don't start IPsec until ovnkube-node has finished setting up the node
           counter=0
           until [ -f /etc/cni/net.d/10-ovn-kubernetes.conf ]
@@ -258,6 +253,8 @@ spec:
           name: host-var-run-pluto
         - mountPath: /etc/ipsec.conf
           name: host-etc-openshift-ipsec
+        - mountPath: /var/lib/rpm
+          name: host-usr-share-rpm
         resources:
           requests:
             cpu: 10m
@@ -321,6 +318,10 @@ spec:
           path: /etc/ipsec.d/openshift.conf
           type: FileOrCreate
         name: host-etc-openshift-ipsec
+      - name: host-usr-share-rpm
+        hostPath:
+          path: /usr/share/rpm
+          type: Directory
       tolerations:
       - operator: "Exists"
 {{end}}
