@@ -48,6 +48,13 @@ spec:
           #!/bin/bash
           set -exuo pipefail
 
+          # check if need to run on host
+          rpm -qa libreswan
+          if [ "$?" -eq 0 ]; then
+            echo "host have libreswan, ipsec will run on host"
+            exit 0
+          fi
+
           # Every time we restart this container, we will create a new key pair if
           # we are close to key expiration or if we do not already have a signed key pair.
           #
@@ -145,6 +152,9 @@ spec:
           name: signer-ca
         - mountPath: /etc/openvswitch
           name: etc-openvswitch
+        - mountPath: /var/lib/rpm
+          name: host-usr-share-rpm
+          readOnly: true
         resources:
           requests:
             cpu: 10m
