@@ -48,7 +48,6 @@ spec:
         - -c
         - |
           #!/bin/bash
-          set -exuo pipefail
 
           # check if need to run on host
           rpm -qa libreswan
@@ -56,6 +55,8 @@ spec:
             echo "no libreswan on host, ipsec will run in container from the pre414 daemonset"
             exit 0
           fi
+
+          set -exuo pipefail
 
           # Every time we restart this container, we will create a new key pair if
           # we are close to key expiration or if we do not already have a signed key pair.
@@ -170,7 +171,6 @@ spec:
         - -c
         - |
           #!/bin/bash
-          set -exuo pipefail
 
           # check if need to run on host
           rpm -qa libreswan
@@ -178,6 +178,8 @@ spec:
             echo "no libreswan on host, ipsec will run in container from the pre414 daemonset"
             exit 0
           fi
+
+          set -exuo pipefail
 
           # Don't start IPsec until ovnkube-node has finished setting up the node
           counter=0
