@@ -311,7 +311,7 @@ spec:
         name: host-var-run-ipsec
       - hostPath:
           path: /var/lib/ipsec
-          type: Directory
+          type: DirectoryOrCreate
         name: host-var-lib-ipsec
       - hostPath:
           path: /var/run/pluto
@@ -323,7 +323,7 @@ spec:
         name: host-run-ipsec
       - hostPath:
           path: /etc/ipsec.conf
-          type: File
+          type: FileOrCreate
         name: host-etc-ipsec
       - hostPath:
           path: /etc/ipsec.d/openshift.conf
@@ -332,7 +332,7 @@ spec:
       - name: host-usr-share-rpm
         hostPath:
           path: /usr/share/rpm
-          type: Directory
+          type: DirectoryOrCreate
       tolerations:
       - operator: "Exists"
 {{end}}
