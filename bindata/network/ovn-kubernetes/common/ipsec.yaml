@@ -176,7 +176,7 @@ spec:
           rpm -qa libreswan
           if [ "$?" -ne 0 ]; then
             echo "no libreswan on host, ipsec will run in container from the pre414 daemonset"
-            exit 0
+            sleep infinity
           fi
 
           set -exuo pipefail

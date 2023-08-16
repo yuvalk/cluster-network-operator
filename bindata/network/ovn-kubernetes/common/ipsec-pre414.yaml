@@ -190,7 +190,7 @@ spec:
           rpm -qa libreswan
           if [ "$?" -eq 0 ]; then
             echo "host have libreswan, ipsec will run on host"
-            exit 0
+            sleep infinity
           fi
 
           # Don't start IPsec until ovnkube-node has finished setting up the node
