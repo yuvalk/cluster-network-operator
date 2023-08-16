@@ -146,14 +146,14 @@ spec:
         securityContext:
           privileged: true
         volumeMounts:
-        - mountPath: /var/run/openvswitch
-          name: host-var-run-ovs
+        - mountPath: /var/run
+          name: host-var-run
         - mountPath: /signer-ca
           name: signer-ca
         - mountPath: /etc/openvswitch
           name: etc-openvswitch
-        - mountPath: /etc/ipsec.conf
-          name: host-etc-ipsec
+        - mountPath: /etc
+          name: host-etc
         - mountPath: /var/lib/rpm
           name: host-usr-share-rpm
           readOnly: true
@@ -251,20 +251,18 @@ spec:
         # To check that network setup is complete
         - mountPath: /etc/cni/net.d
           name: host-cni-netd
-        - mountPath: /var/run/openvswitch
-          name: host-var-run-ovs
+        - mountPath: /var/run
+          name: host-var-run
         - mountPath: /var/log/openvswitch/
           name: host-var-log-ovs
         - mountPath: /etc/openvswitch
           name: etc-openvswitch
-        - mountPath: /var/run/ipsec
-          name: host-run-ipsec
-        - mountPath: /var/lib/ipsec
-          name: host-var-lib-ipsec
-        - mountPath: /var/run/pluto
-          name: host-var-run-pluto
-        - mountPath: /etc/ipsec.conf
-          name: host-etc-openshift-ipsec
+        - mountPath: /var/lib
+          name: host-var-lib
+        - mountPath: /var/run
+          name: host-var-run
+        - mountPath: /etc
+          name: host-etc
         - mountPath: /var/lib/rpm
           name: host-usr-share-rpm
           readOnly: true
@@ -308,29 +306,17 @@ spec:
           type: ""
         name: host-cni-netd
       - hostPath:
-          path: /var/run/ipsec
+          path: /var/run
           type: DirectoryOrCreate
-        name: host-var-run-ipsec
+        name: host-var-run
       - hostPath:
-          path: /var/lib/ipsec
+          path: /var/lib
           type: DirectoryOrCreate
-        name: host-var-lib-ipsec
+        name: host-var-lib
       - hostPath:
-          path: /var/run/pluto
-          type: DirectoryOrCreate
-        name: host-var-run-pluto
-      - hostPath:
-          path: /var/run/ipsec
-          type: DirectoryOrCreate
-        name: host-run-ipsec
-      - hostPath:
-          path: /etc/ipsec.conf
+          path: /etc
           type: FileOrCreate
-        name: host-etc-ipsec
-      - hostPath:
-          path: /etc/ipsec.d/openshift.conf
-          type: FileOrCreate
-        name: host-etc-openshift-ipsec
+        name: host-etc
       - name: host-usr-share-rpm
         hostPath:
           path: /usr/share/rpm

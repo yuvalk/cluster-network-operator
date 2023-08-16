@@ -152,7 +152,7 @@ spec:
           name: signer-ca
         - mountPath: /etc/openvswitch
           name: etc-openvswitch
-        - mountPath: /var/lib/rpm
+        - mountPath: /usr/share/rpm
           name: host-usr-share-rpm
           readOnly: true
         resources:
@@ -249,7 +249,7 @@ spec:
           name: host-var-log-ovs
         - mountPath: /etc/openvswitch
           name: etc-openvswitch
-        - mountPath: /var/lib/rpm
+        - mountPath: /usr/share/rpm
           name: host-usr-share-rpm
           readOnly: true
         resources:
