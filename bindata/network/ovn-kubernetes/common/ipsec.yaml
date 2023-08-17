@@ -257,8 +257,6 @@ spec:
           name: etc-openvswitch
         - mountPath: /var/lib
           name: host-var-lib
-        - mountPath: /var/run
-          name: host-var-run
         - mountPath: /etc
           name: host-etc
         - mountPath: /usr/share/rpm
@@ -287,10 +285,6 @@ spec:
           path: /var/log/openvswitch
           type: DirectoryOrCreate
         name: host-var-log-ovs
-      - hostPath:
-          path: /var/run/openvswitch
-          type: DirectoryOrCreate
-        name: host-var-run-ovs
       - configMap:
           defaultMode: 420
           name: signer-ca
