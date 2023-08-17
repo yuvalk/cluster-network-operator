@@ -50,8 +50,7 @@ spec:
           #!/bin/bash
 
           # check if need to run on host
-          rpm -qa libreswan
-          if [ "$?" -ne 0 ]; then
+          if ! rpm --dbpath /usr/share/rpm/ -q libreswan; then
             echo "no libreswan on host, ipsec will run in container from the pre414 daemonset"
             exit 0
           fi
@@ -154,7 +153,7 @@ spec:
           name: etc-openvswitch
         - mountPath: /etc
           name: host-etc
-        - mountPath: /var/lib/rpm
+        - mountPath: /usr/share/rpm
           name: host-usr-share-rpm
           readOnly: true
         resources:
@@ -173,8 +172,7 @@ spec:
           #!/bin/bash
 
           # check if need to run on host
-          rpm -qa libreswan
-          if [ "$?" -ne 0 ]; then
+          if ! rpm --dbpath /usr/share/rpm/ -q libreswan; then
             echo "no libreswan on host, ipsec will run in container from the pre414 daemonset"
             sleep infinity
           fi
@@ -263,7 +261,7 @@ spec:
           name: host-var-run
         - mountPath: /etc
           name: host-etc
-        - mountPath: /var/lib/rpm
+        - mountPath: /usr/share/rpm
           name: host-usr-share-rpm
           readOnly: true
         resources:

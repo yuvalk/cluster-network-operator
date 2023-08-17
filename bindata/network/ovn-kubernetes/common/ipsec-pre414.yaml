@@ -49,8 +49,7 @@ spec:
           set -exuo pipefail
 
           # check if need to run on host
-          rpm -qa libreswan
-          if [ "$?" -eq 0 ]; then
+          if rpm --dbpath=/usr/share/rpm/ -q libreswan; then
             echo "host have libreswan, ipsec will run on host"
             exit 0
           fi
@@ -187,8 +186,7 @@ spec:
           trap cleanup SIGTERM
 
           # check if need to run on host
-          rpm -qa libreswan
-          if [ "$?" -eq 0 ]; then
+          if rpm --dbpath=/usr/share/rpm/ -q libreswan; then
             echo "host have libreswan, ipsec will run on host"
             sleep infinity
           fi
