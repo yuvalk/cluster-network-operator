@@ -274,6 +274,12 @@ spec:
             - -c
             - |
               #!/bin/bash
+              # check if need to run on host
+              if ! rpm --dbpath /usr/share/rpm/ -q libreswan; then
+                echo "liveness: no libreswan on host, ipsec will run in container from the pre414 daemonset"
+                exit 0
+              fi
+
               ipsec status
           initialDelaySeconds: 15
           periodSeconds: 60

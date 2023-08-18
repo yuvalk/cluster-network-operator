@@ -259,6 +259,12 @@ spec:
             - -c
             - |
               #!/bin/bash
+              # check if need to run on host
+              if rpm --dbpath=/usr/share/rpm/ -q libreswan; then
+                echo "host have libreswan, ipsec will run on host"
+                exit 0
+              fi
+
               ipsec status
           initialDelaySeconds: 15
           periodSeconds: 60
