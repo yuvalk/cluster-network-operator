@@ -307,7 +307,7 @@ spec:
         name: host-var-lib
       - hostPath:
           path: /etc
-          type: FileOrCreate
+          type: Directory
         name: host-etc
       - name: host-usr-share-rpm
         hostPath:
